@@ -33,7 +33,7 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
 
-    function handleMint(string memory uri, bytes32 _title, bytes32 _description, uint256 _price) external override returns (uint256){
+    function mint(string memory uri, bytes32 _title, bytes32 _description, uint256 _price) external override returns (uint256){
         require(
             IAccessControlUpgradeable(dynamicNFTCollectionAddress).hasRole(MINTER_ROLE, _msgSender()),
             "invalid caller"
@@ -47,6 +47,13 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
 
         return tokenId;
     }
+
+    function buyNFT(uint256 _tokenId) external payable override {
+        address from = NFT.ownerOf(tokenId);
+        address to = _msgSender();
+        NFT.transferFrom(from, to, _tokenId);
+    }
+
 
     function getMediaInfo(uint256 _tokenId) public view override returns (bytes32, bytes32, uint256){
         return eternalStorage.getMediaInfo(_tokenId);

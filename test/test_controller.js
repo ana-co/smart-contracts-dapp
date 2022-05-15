@@ -31,7 +31,7 @@ contract("Controller", accounts => {
 
 
     it("should assert true", async () => {
-        await controller.handleMint("google.com", utils.getByte32("title"), utils.getByte32("desc"), 12);
+        await controller.mint("google.com", utils.getByte32("title"), utils.getByte32("desc"), 12);
 
         let owner = await nft.ownerOf(1);
         let uri = await nft.tokenURI(1);
@@ -41,6 +41,18 @@ contract("Controller", accounts => {
 
         let res = await controller.getMediaInfo(1);
         assert.equal(12, res[2].toNumber());
+
+    })
+
+
+    it("should assert true", async () => {
+        await controller.mint("google2.com", utils.getByte32("title2"), utils.getByte32("desc2"), 12);
+
+        let buyer_account = accounts[2]
+        await controller.buyNFT(2, {from: buyer_account, value:12});
+
+        let owner = await nft.ownerOf(2);
+        assert.equal(owner.toString(), buyer_account);
 
     });
 
