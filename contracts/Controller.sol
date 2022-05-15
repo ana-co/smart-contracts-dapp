@@ -51,6 +51,7 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
     function buyNFT(uint256 _tokenId) external payable override {
         address from = NFT.ownerOf(tokenId);
         address to = _msgSender();
+//        NFT.approve(address(this), _tokenId);
         NFT.transferFrom(from, to, _tokenId);
     }
 
