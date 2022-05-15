@@ -48,7 +48,7 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
         return tokenId;
     }
 
-    function getMediaInfo(uint256 _tokenId) external override returns (bytes32, bytes32, uint256){
+    function getMediaInfo(uint256 _tokenId) public view override returns (bytes32, bytes32, uint256){
         return eternalStorage.getMediaInfo(_tokenId);
     }
 

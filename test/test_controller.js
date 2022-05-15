@@ -35,13 +35,16 @@ contract("Controller", accounts => {
 
 
     it("should assert true", async () => {
-        await controller.handleMint("google.com");
+        await controller.handleMint("google.com", web3.utils.fromAscii("title"), web3.utils.fromAscii("desc"), 12);
 
         let owner = await nft.ownerOf(1);
         let uri = await nft.tokenURI(1);
 
         assert.equal(owner.toString(), accounts[0]);
         assert.equal(uri.toString(), "google.com");
+
+        let res = await controller.getMediaInfo(1);
+        assert.equal(12, res[2].toNumber());
 
     });
 
