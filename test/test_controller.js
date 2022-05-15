@@ -8,10 +8,6 @@ const EternalStorage = artifacts.require("EternalStorage.sol");
 const NFTLibrary = artifacts.require("NFTLibrary.sol");
 
 
-function getByte32(string) {
-    return web3.utils.fromAscii(string);
-}
-
 contract("Controller", accounts => {
 
     let nft;
@@ -35,7 +31,7 @@ contract("Controller", accounts => {
 
 
     it("should assert true", async () => {
-        await controller.handleMint("google.com", web3.utils.fromAscii("title"), web3.utils.fromAscii("desc"), 12);
+        await controller.handleMint("google.com", utils.getByte32("title"), utils.getByte32("desc"), 12);
 
         let owner = await nft.ownerOf(1);
         let uri = await nft.tokenURI(1);
