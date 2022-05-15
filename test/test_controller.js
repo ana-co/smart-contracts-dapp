@@ -30,7 +30,7 @@ contract("Controller", accounts => {
     });
 
 
-    it("should assert true", async () => {
+    it("should mint", async () => {
         await controller.mint("google.com", utils.getByte32("title"), utils.getByte32("desc"), 12);
 
         let owner = await nft.ownerOf(1);
@@ -45,17 +45,40 @@ contract("Controller", accounts => {
     })
 
 
-    it("should assert true", async () => {
-        await controller.mint("google2.com", utils.getByte32("title2"), utils.getByte32("desc2"), 12);
+    it("should buy (owner)", async () => {
+        let price = 12;
+        await controller.mint("google2.com", utils.getByte32("title2"), utils.getByte32("desc2"), price);
         let token_id = 2
         let prev_owner = await nft.ownerOf(token_id);
 
         let buyer_account = accounts[2]
         await nft.approve(controller.address, token_id, {from: prev_owner})
-        await controller.buyNFT(2, {from: buyer_account, value:12});
+        await controller.buyNFT(2, {from: buyer_account, value:price});
 
         let owner = await nft.ownerOf(token_id);
         assert.equal(owner.toString(), buyer_account);
+
+    });
+
+    it("should buy (balance) ", async () => {
+        let price = 10;
+        await controller.mint("google3.com", utils.getByte32("title3"), utils.getByte32("desc3"), price);
+        let token_id = 3
+
+        let prev_owner = await nft.ownerOf(token_id);
+        let owner_balance_before_purchase = await web3.eth.getBalance(prev_owner);
+
+        let buyer_account = accounts[3]
+        let buyer_balance_before_purchase = await web3.eth.getBalance(buyer_account);
+
+        await nft.approve(controller.address, token_id, {from: prev_owner})
+        await controller.buyNFT(2, {from: buyer_account, value:price});
+
+        let owner_balance = await web3.eth.getBalance(prev_owner);
+        let buyer_balance = await web3.eth.getBalance(buyer_account);
+
+        assert.equal(Number(owner_balance), Number(owner_balance_before_purchase)+Number(price));
+        assert.isBelow(Number(buyer_balance), Number(buyer_balance_before_purchase)+Number(price));
 
     });
 

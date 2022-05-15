@@ -26,4 +26,9 @@ library NFTLibrary {
         );
     }
 
+    function getMediaPrice(address _storageContract, uint256 _tokenId) public view returns (uint256)
+    {
+        return EternalStorage(_storageContract).getUIntValue(keccak256(abi.encodePacked("media_price", _tokenId)));
+    }
+
 }

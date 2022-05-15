@@ -49,16 +49,27 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
     }
 
     function buyNFT(uint256 _tokenId) external payable override {
-        address from = NFT.ownerOf(tokenId);
-        address to = _msgSender();
-//        NFT.approve(address(this), _tokenId);
-        NFT.transferFrom(from, to, _tokenId);
-    }
+        address seller = NFT.ownerOf(tokenId);
+        address buyer = _msgSender();
 
+        uint256 price = eternalStorage.getMediaPrice(_tokenId);
+
+        require(
+            msg.value >= price,
+            "Not enough funds"
+        );
+
+        NFT.transferFrom(seller, buyer, _tokenId);
+
+        _forwardFunds(payable(seller));
+    }
 
     function getMediaInfo(uint256 _tokenId) public view override returns (bytes32, bytes32, uint256){
         return eternalStorage.getMediaInfo(_tokenId);
     }
 
+    function _forwardFunds(address payable receiver) internal {
+        receiver.transfer(msg.value);
+    }
 
 }
