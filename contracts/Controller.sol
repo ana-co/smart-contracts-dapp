@@ -34,10 +34,6 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
     }
 
     function mint(string memory uri, bytes32 _title, bytes32 _description, uint256 _price) external override returns (uint256){
-        require(
-            IAccessControlUpgradeable(dynamicNFTCollectionAddress).hasRole(MINTER_ROLE, _msgSender()),
-            "invalid caller"
-        );
 
         tokenId = tokenId + 1;
 
