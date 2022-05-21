@@ -22,6 +22,11 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
 
     Collection NFT;
 
+    /* ========== EVENTS ========== */
+
+    event MintNFT(uint256 _tokenId, address _minter, string uri);
+
+
     function initialize(address _eternalStorage, address _dynamicNFTCollectionAddress) public initializer {
         eternalStorage = _eternalStorage;
         dynamicNFTCollectionAddress = _dynamicNFTCollectionAddress;
@@ -40,6 +45,8 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
         NFT.mint(_msgSender(), tokenId);
         NFT.setTokenURI(tokenId, uri);
         eternalStorage.saveMediaInfo(tokenId, _title, _description, _price);
+
+        emit MintNFT(tokenId, _msgSender(), uri);
 
         return tokenId;
     }

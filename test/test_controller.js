@@ -31,7 +31,7 @@ contract("Controller", accounts => {
 
 
     it("should mint", async () => {
-        await controller.mint("google.com", utils.getByte32("title"), utils.getByte32("desc"), 12);
+        await controller.mint("google.com", web3.utils.fromAscii("title"), web3.utils.fromAscii("desc"), 12);
 
         let owner = await nft.ownerOf(1);
         let uri = await nft.tokenURI(1);
