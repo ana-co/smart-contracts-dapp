@@ -6,6 +6,7 @@ const FreeUniToken = artifacts.require("FreeUniToken.sol");
 const Collection = artifacts.require('Collection.sol');
 const EternalStorage = artifacts.require("EternalStorage.sol");
 const NFTLibrary = artifacts.require("NFTLibrary.sol");
+// const {expectRevert}  = require("@openzeppelin/test-helpers");
 
 
 contract("Controller", accounts => {
@@ -14,6 +15,7 @@ contract("Controller", accounts => {
     let token;
     let controller;
     let storage;
+    let token_id;
 
     before(async () => {
         token = await FreeUniToken.new("FreeUNI TOKEN", "FRU", utils.toWei(1_000_000_000));
@@ -22,7 +24,7 @@ contract("Controller", accounts => {
         let lib = await NFTLibrary.new();
         await Controller.link("NFTLibrary", lib.address);
         controller = await Controller.new();
-        await controller.initialize(storage.address, nft.address)
+        await controller.initialize(storage.address, nft.address);
         await storage.setAssociatedContract(controller.address);
 
         await nft.grantRole(await nft.MINTER_ROLE.call(), controller.address);
@@ -31,56 +33,100 @@ contract("Controller", accounts => {
 
 
     it("should mint", async () => {
-        await controller.mint("google.com", web3.utils.fromAscii("title"), web3.utils.fromAscii("desc"), 12);
+        let price = utils.toWei('0.000000001');
+        await controller.mint("google.com", web3.utils.fromAscii("title"), web3.utils.fromAscii("desc"), price);
 
-        let owner = await nft.ownerOf(1);
-        let uri = await nft.tokenURI(1);
+        token_id = 1;
+        let owner = await nft.ownerOf(token_id);
+        let uri = await nft.tokenURI(token_id);
 
         assert.equal(owner.toString(), accounts[0]);
         assert.equal(uri.toString(), "google.com");
 
-        let res = await controller.getMediaInfo(1);
-        assert.equal(12, res[2].toNumber());
+        let res = await controller.getMediaInfo(token_id);
+        assert.equal(price, res[2].toNumber());
+
+    })
+
+    it("should mint (not admin) ", async () => {
+        let minter_account = accounts[2];
+        let price = utils.toWei('0.0000000014');
+        await controller.mint("notanadmin.com", web3.utils.fromAscii("ar var adzmini"), web3.utils.fromAscii("desc"), price, {from: minter_account});
+
+        token_id = 2;
+        let owner = await nft.ownerOf(token_id);
+        let uri = await nft.tokenURI(token_id);
+
+        assert.equal(owner.toString(), minter_account);
+        assert.equal(uri.toString(), "notanadmin.com");
+
+        let res = await controller.getMediaInfo(token_id);
+        assert.equal(price, res[2].toNumber());
 
     })
 
 
     it("should buy (owner)", async () => {
-        let price = 12;
+        let price = utils.toWei('0.0000000012');
         await controller.mint("google2.com", utils.getByte32("title2"), utils.getByte32("desc2"), price);
-        let token_id = 2
+        token_id = 3;
         let prev_owner = await nft.ownerOf(token_id);
 
-        let buyer_account = accounts[2]
-        await nft.approve(controller.address, token_id, {from: prev_owner})
-        await controller.buyNFT(2, {from: buyer_account, value:price});
+        let buyer_account = accounts[2];
+        await nft.approve(controller.address, token_id, {from: prev_owner});
+        await controller.buyNFT(token_id, {from: buyer_account, value: price});
 
         let owner = await nft.ownerOf(token_id);
         assert.equal(owner.toString(), buyer_account);
 
     });
 
-    it("should buy (balance) ", async () => {
-        let price = 10;
-        await controller.mint("google3.com", utils.getByte32("title3"), utils.getByte32("desc3"), price);
-        let token_id = 3
+    it("should not buy (low price) ", async () => {
+        let price = utils.toWei('0.000000002');
+        await controller.mint("lowprice.com", utils.getByte32("lowprice"), utils.getByte32("desc3"), price);
+        token_id = 4
 
         let prev_owner = await nft.ownerOf(token_id);
-        let owner_balance_before_purchase = await web3.eth.getBalance(prev_owner);
+        let buyer_account = accounts[3];
 
-        let buyer_account = accounts[3]
-        let buyer_balance_before_purchase = await web3.eth.getBalance(buyer_account);
+        let price_offer = utils.toWei('0.000000001');
+        await nft.approve(controller.address, token_id, {from: prev_owner});
 
-        await nft.approve(controller.address, token_id, {from: prev_owner})
-        await controller.buyNFT(2, {from: buyer_account, value:price});
+        try {
+            await controller.buyNFT(token_id, {from: buyer_account, value: price_offer});
+            assert.fail("Not enough funds");
+        } catch (err) {
+            assert.include(err.message, "revert", "Not enough funds");
+        }
 
-        let owner_balance = await web3.eth.getBalance(prev_owner);
-        let buyer_balance = await web3.eth.getBalance(buyer_account);
-
-        assert.equal(Number(owner_balance), Number(owner_balance_before_purchase)+Number(price));
-        assert.isBelow(Number(buyer_balance), Number(buyer_balance_before_purchase)+Number(price));
+        // await assert.throws(
+        //     controller.buyNFT(token_id, {from: buyer_account, value: price_offer}),
+        //     "Not enough funds"
+        // );
 
     });
+
+    // it("should buy (balance) ", async () => {
+    //     let price = utils.toWei('0.000000001');
+    //     await controller.mint("google4.com", utils.getByte32("title3"), utils.getByte32("desc3"), price);
+    //     token_id = 5;
+    //
+    //     let prev_owner = await nft.ownerOf(token_id);
+    //     // let owner_balance_before_purchase = await web3.eth.getBalance(prev_owner);
+    //
+    //     let buyer_account = accounts[5];
+    //     // let buyer_balance_before_purchase = await web3.eth.getBalance(buyer_account);
+    //
+    //     await nft.approve(controller.address, token_id, {from: prev_owner});
+    //     await controller.buyNFT(token_id, {from: buyer_account, value:price});
+    //
+    //     // let owner_balance = await web3.eth.getBalance(prev_owner);
+    //     // let buyer_balance = await web3.eth.getBalance(buyer_account);
+    //
+    //     // assert.equal(Number(owner_balance), Number(owner_balance_before_purchase)+Number(price));
+    //     // assert.isBelow(Number(buyer_balance), Number(buyer_balance_before_purchase)+Number(price));
+    //
+    // });
 
 
 });
