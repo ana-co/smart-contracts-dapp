@@ -8,17 +8,14 @@ import "./interface/IController.sol";
 import "./Collection.sol";
 
 
-contract Controller is IController, Initializable, AccessControlUpgradeable {
+contract Controller is AccessControlUpgradeable {
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    using NFTLibrary for address;
 
     address public eternalStorage;
 
     address public dynamicNFTCollectionAddress;
-
-    uint256 public tokenId;
 
     Collection NFT;
 
