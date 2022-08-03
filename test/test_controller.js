@@ -73,7 +73,36 @@ contract("Controller", accounts => {
         let prev_owner = await nft.ownerOf(token_id);
 
         let buyer_account = accounts[2];
-        await nft.approve(controller.address, token_id, {from: prev_owner});
+        await controller.buyNFT(token_id, {from: buyer_account, value: price});
+
+        let owner = await nft.ownerOf(token_id);
+        assert.equal(owner.toString(), buyer_account);
+
+    });
+
+
+    it("should buy (owner)", async () => {
+        let price = utils.toWei('0.0000000012');
+        await controller.mint("google2.com", utils.getByte32("title2"), utils.getByte32("desc2"), price,
+            {from: accounts[8]});
+        token_id = 4;
+        let prev_owner = await nft.ownerOf(token_id);
+
+        let buyer_account = accounts[9];
+        await controller.buyNFT(token_id, {from: buyer_account, value: price});
+
+        let owner = await nft.ownerOf(token_id);
+        assert.equal(owner.toString(), buyer_account);
+
+    });
+
+    it("should buy (owner)", async () => {
+        let price = utils.toWei('0.0000000012');
+        token_id = 4;
+        let prev_owner = await nft.ownerOf(token_id);
+
+        let buyer_account = accounts[8];
+        // await nft.approve(controller.address, token_id, {from: prev_owner});
         await controller.buyNFT(token_id, {from: buyer_account, value: price});
 
         let owner = await nft.ownerOf(token_id);
@@ -90,7 +119,6 @@ contract("Controller", accounts => {
         let buyer_account = accounts[3];
 
         let price_offer = utils.toWei('0.000000001');
-        await nft.approve(controller.address, token_id, {from: prev_owner});
 
         try {
             await controller.buyNFT(token_id, {from: buyer_account, value: price_offer});

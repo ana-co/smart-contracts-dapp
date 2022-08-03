@@ -69,6 +69,10 @@ Ownable
         _mint(to, tokenId);
     }
 
+    function buy(address from, address to, uint256 _tokenId) external payable {
+        _transfer(from, to, _tokenId);
+    }
+
     function tokenURI(uint256 tokenId)
     public
     view

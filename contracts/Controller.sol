@@ -24,7 +24,8 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
 
     /* ========== EVENTS ========== */
 
-    event MintNFT(uint256 _tokenId, address _minter, string uri);
+    event Mint(uint256 _tokenId, address _minter, string uri, bytes32 _title, bytes32 _description, uint256 _price);
+    event BuyNFT(uint256 _tokenId, address from, address to);
 
 
     function initialize(address _eternalStorage, address _dynamicNFTCollectionAddress) public initializer {
@@ -46,14 +47,14 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
         NFT.setTokenURI(tokenId, uri);
         eternalStorage.saveMediaInfo(tokenId, _title, _description, _price);
 
-        emit MintNFT(tokenId, _msgSender(), uri);
+        emit Mint(tokenId, _msgSender(), uri, _title, _description, _price);
 
         return tokenId;
     }
 
     function buyNFT(uint256 _tokenId) external payable override {
-        address seller = NFT.ownerOf(tokenId);
-        address buyer = _msgSender();
+        address from = NFT.ownerOf(tokenId);
+        address to = _msgSender();
 
         uint256 price = eternalStorage.getMediaPrice(_tokenId);
 
@@ -62,9 +63,11 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
             "Not enough funds"
         );
 
-        NFT.transferFrom(seller, buyer, _tokenId);
+        NFT.buy(from, to, _tokenId);
 
-        _forwardFunds(payable(seller));
+        _forwardFunds(payable(from));
+
+        emit BuyNFT(_tokenId, from, to);
     }
 
     function getMediaInfo(uint256 _tokenId) public view override returns (bytes32, bytes32, uint256){
