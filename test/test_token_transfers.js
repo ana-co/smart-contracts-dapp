@@ -1,5 +1,5 @@
-const {expect, should, assert} = require('chai');
-const truffleAssert = require('truffle-assertions');
+const { assert} = require('chai');
+// const truffleAssert = require('truffle-assertions');
 const Controller = artifacts.require("Controller.sol");
 const utils = require("../script/utils");
 const FreeUniToken = artifacts.require("FreeUniToken.sol");
@@ -70,7 +70,7 @@ contract("Controller", accounts => {
         let price = utils.toWei('0.0000000012');
         await controller.mint("google2.com", utils.getByte32("title2"), utils.getByte32("desc2"), price, price, 144);
         token_id = 3;
-        let prev_owner = await nft.ownerOf(token_id);
+        // let prev_owner = await nft.ownerOf(token_id);
 
         let buyer_account = accounts[2];
         await controller.buyNFT(token_id, {from: buyer_account, value: price});
@@ -86,7 +86,7 @@ contract("Controller", accounts => {
         await controller.mint("google2.com", utils.getByte32("title2"), utils.getByte32("desc2"), price, price, 144,
             {from: accounts[8]});
         token_id = 4;
-        let prev_owner = await nft.ownerOf(token_id);
+        // let prev_owner = await nft.ownerOf(token_id);
 
         let buyer_account = accounts[9];
         await controller.buyNFT(token_id, {from: buyer_account, value: price});
@@ -99,7 +99,7 @@ contract("Controller", accounts => {
     it("should buy (owner)", async () => {
         let price = utils.toWei('0.0000000012');
         token_id = 4;
-        let prev_owner = await nft.ownerOf(token_id);
+        // let prev_owner = await nft.ownerOf(token_id);
 
         let buyer_account = accounts[8];
         // await nft.approve(controller.address, token_id, {from: prev_owner});
@@ -115,7 +115,7 @@ contract("Controller", accounts => {
         await controller.mint("lowprice.com", utils.getByte32("lowprice"), utils.getByte32("desc3"), price, price, 144);
         token_id = 4
 
-        let prev_owner = await nft.ownerOf(token_id);
+        // let prev_owner = await nft.ownerOf(token_id);
         let buyer_account = accounts[3];
 
         let price_offer = utils.toWei('0.000000001');

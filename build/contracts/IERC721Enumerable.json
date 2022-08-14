@@ -357,7 +357,7 @@
     "absolutePath": "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol",
     "exportedSymbols": {
       "IERC165": [
-        4559
+        4652
       ],
       "IERC721": [
         3461
@@ -422,7 +422,7 @@
         "linearizedBaseContracts": [
           3976,
           3461,
-          4559
+          4652
         ],
         "name": "IERC721Enumerable",
         "nameLocation": "327:17:22",
@@ -709,7 +709,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.7",
-  "updatedAt": "2022-05-29T16:12:01.257Z",
+  "updatedAt": "2022-08-14T08:48:47.429Z",
   "devdoc": {
     "details": "See https://eips.ethereum.org/EIPS/eip-721",
     "kind": "dev",

@@ -352,7 +352,7 @@
         4320
       ],
       "ERC165": [
-        4547
+        4640
       ],
       "ERC721": [
         3345
@@ -361,7 +361,7 @@
         3945
       ],
       "IERC165": [
-        4559
+        4652
       ],
       "IERC721": [
         3461
@@ -434,8 +434,8 @@
           3345,
           4003,
           3461,
-          4547,
-          4559,
+          4640,
+          4652,
           4320
         ],
         "name": "ERC721URIStorage",
@@ -1945,7 +1945,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.7",
-  "updatedAt": "2022-05-29T16:12:01.254Z",
+  "updatedAt": "2022-08-14T08:48:47.426Z",
   "devdoc": {
     "details": "ERC721 token with storage based token URI management.",
     "kind": "dev",

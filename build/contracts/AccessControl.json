@@ -226,13 +226,13 @@
         4320
       ],
       "ERC165": [
-        4547
+        4640
       ],
       "IAccessControl": [
         1616
       ],
       "IERC165": [
-        4559
+        4652
       ],
       "Strings": [
         4523
@@ -296,7 +296,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 1419,
-        "sourceUnit": 4548,
+        "sourceUnit": 4641,
         "src": "226:43:8",
         "symbolAliases": [],
         "unitAlias": ""
@@ -333,7 +333,7 @@
               "id": 1110,
               "name": "ERC165",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 4547,
+              "referencedDeclaration": 4640,
               "src": "1866:6:8"
             },
             "id": 1111,
@@ -353,8 +353,8 @@
         "id": 1418,
         "linearizedBaseContracts": [
           1418,
-          4547,
-          4559,
+          4640,
+          4652,
           1616,
           4320
         ],
@@ -663,7 +663,7 @@
           },
           {
             "baseFunctions": [
-              4546
+              4639
             ],
             "body": {
               "id": 1158,
@@ -816,7 +816,7 @@
                         "lValueRequested": false,
                         "memberName": "supportsInterface",
                         "nodeType": "MemberAccess",
-                        "referencedDeclaration": 4546,
+                        "referencedDeclaration": 4639,
                         "src": "2765:23:8",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_internal_view$_t_bytes4_$returns$_t_bool_$",
@@ -4189,7 +4189,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.7",
-  "updatedAt": "2022-05-29T16:12:01.212Z",
+  "updatedAt": "2022-08-14T08:48:47.360Z",
   "devdoc": {
     "details": "Contract module that allows children to implement role-based access control mechanisms. This is a lightweight version that doesn't allow enumerating role members except through off-chain means by accessing the contract event logs. Some applications may benefit from on-chain enumerability, for those cases see {AccessControlEnumerable}. Roles are referred to by their `bytes32` identifier. These should be exposed in the external API and be unique. The best way to achieve this is by using `public constant` hash digests: ``` bytes32 public constant MY_ROLE = keccak256(\"MY_ROLE\"); ``` Roles can be used to represent a set of permissions. To restrict access to a function call, use {hasRole}: ``` function foo() public {     require(hasRole(MY_ROLE, msg.sender));     ... } ``` Roles can be granted and revoked dynamically via the {grantRole} and {revokeRole} functions. Each role has an associated admin role, and only accounts that have a role's admin role can call {grantRole} and {revokeRole}. By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`, which means that only accounts with this role will be able to grant or revoke other roles. More complex role relationships can be created by using {_setRoleAdmin}. WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to grant and revoke this role. Extra precautions should be taken to secure accounts that have been granted it.",
     "kind": "dev",
