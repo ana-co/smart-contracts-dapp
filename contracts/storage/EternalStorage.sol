@@ -23,6 +23,7 @@ contract EternalStorage is Owned, State {
     mapping(bytes32 => uint16) internal UInt16Storage;
     mapping(bytes32 => string) internal StringStorage;
     mapping(bytes32 => address) internal AddressStorage;
+    mapping(bytes32 => address[]) internal AddressListStorage;
     mapping(bytes32 => bytes) internal BytesStorage;
     mapping(bytes32 => bytes32) internal Bytes32Storage;
     mapping(bytes32 => bool) internal BooleanStorage;
@@ -75,6 +76,18 @@ contract EternalStorage is Owned, State {
 
     function deleteAddressValue(bytes32 record) external onlyAssociatedContract {
         delete AddressStorage[record];
+    }
+
+    function getAddressListValue(bytes32 record) external view returns (address[] memory) {
+        return AddressListStorage[record];
+    }
+
+    function setAddressListValue(bytes32 record, address[] memory value) external onlyAssociatedContract {
+        AddressListStorage[record] = value;
+    }
+
+    function deleteAddressListValue(bytes32 record) external onlyAssociatedContract {
+        delete AddressListStorage[record];
     }
 
     function getBytesValue(bytes32 record) external view returns (bytes memory) {

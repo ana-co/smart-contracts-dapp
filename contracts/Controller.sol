@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 import "./NFTLibrary.sol";
 import "./interface/IController.sol";
@@ -13,6 +14,9 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     using NFTLibrary for address;
+
+    using MerkleProof for bytes32[];
+
 
     address public eternalStorage;
 
@@ -39,13 +43,13 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
 
-    function mint(string memory uri, bytes32 _title, bytes32 _description, uint256 _price) external override returns (uint256){
+    function mint(string memory uri, bytes32 _title, bytes32 _description, uint256 _price, uint256 rentPrice, uint256 rentDuration) external override returns (uint256){
 
         tokenId = tokenId + 1;
 
         NFT.mint(_msgSender(), tokenId);
         NFT.setTokenURI(tokenId, uri);
-        eternalStorage.saveMediaInfo(tokenId, _title, _description, _price);
+        eternalStorage.saveMediaInfo(tokenId, _title, _description, _price, rentPrice, rentDuration);
 
         emit Mint(tokenId, _msgSender(), uri, _title, _description, _price);
 
@@ -53,6 +57,8 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
     }
 
     function buyNFT(uint256 _tokenId) external payable override {
+        require(eternalStorage.mediaRentStatus(_tokenId) == false, "media rented now");
+
         address from = NFT.ownerOf(tokenId);
         address to = _msgSender();
 
@@ -70,7 +76,57 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
         emit BuyNFT(_tokenId, from, to);
     }
 
-    function getMediaInfo(uint256 _tokenId) public view override returns (bytes32, bytes32, uint256){
+    function rentRequest(uint256 _tokenId, bytes32 coOwners, address[] memory coOwnersList) external payable {
+        eternalStorage.handleRentRequest(_tokenId, _msgSender(), coOwners, coOwnersList.length, coOwnersList, msg.value);
+        _forwardFunds(payable(NFT.ownerOf(_tokenId)));
+        //emit paid
+    }
+
+    function rentByPeer(uint256 _tokenId, address mainRenter, bytes32[] memory proof) external payable {
+        //        require(not rented now);
+        require(eternalStorage.mediaRentStatus(_tokenId) == false, "media rented now");
+        //        requeire(in merklepeers);
+        bytes32 merkleTree = eternalStorage.getRentRequestMerkleTree(_tokenId, mainRenter);
+        require(proof.verify(merkleTree, keccak256(abi.encodePacked(_msgSender()))), "Address not in list");
+        // cummulatedPrice += single_peer_price;
+        //        transfer_price_to_owner();
+        //        save_this_add in transfereds;
+        _forwardFunds(payable(NFT.ownerOf(_tokenId)));
+        eternalStorage.savePaidInfo(_tokenId, mainRenter, _msgSender(), msg.value);
+        if(eternalStorage.hasEveryOnePaid(_tokenId, mainRenter)){
+            eternalStorage.updateRentStatus(_tokenId);
+            //emit finishTime
+        }
+        //emit paid
+    }
+
+    function renterAllowedToWatch(uint256 _tokenId, address mainRenter, bytes32[] memory proof) external returns(bool){
+        bytes32 merkleTree = eternalStorage.getRentRequestMerkleTree(_tokenId, mainRenter);
+        require(proof.verify(merkleTree, keccak256(abi.encodePacked(_msgSender()))), "Address not in list");
+        return eternalStorage.hasEveryOnePaid(_tokenId, mainRenter);
+    }
+
+    function getMediaRentPrice(uint256 _tokenId) public view returns(uint256){
+        return eternalStorage.getMediaRentPrice(_tokenId);
+    }
+
+    function canRemovePeer(uint256 _tokenId, address mainRenter, address peer) external view returns(bool){
+        return !eternalStorage.hasPaid(_tokenId, mainRenter, peer);
+    }
+
+    function getPaidRentCumulativeValue(uint256 _tokenId, address mainRenter) external view returns(uint256){
+        return eternalStorage.getPaidRentCumulativeValue(_tokenId, mainRenter);
+    }
+
+    function resetRentStatus(uint256 _tokenId, address renter) external {
+        eternalStorage.resetRentStatus(_tokenId, renter);
+    }
+
+    function isRented(uint256 _tokenId) public view returns(bool) {
+        return eternalStorage.mediaRentStatus(_tokenId);
+    }
+
+    function getMediaInfo(uint256 _tokenId) public view override returns (bytes32, bytes32, uint256, uint256, uint256){
         return eternalStorage.getMediaInfo(_tokenId);
     }
 

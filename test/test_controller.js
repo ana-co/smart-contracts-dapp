@@ -34,7 +34,7 @@ contract("Controller", accounts => {
 
     it("should mint", async () => {
         let price = utils.toWei('0.000000001');
-        await controller.mint("google.com", web3.utils.fromAscii("title"), web3.utils.fromAscii("desc"), price);
+        await controller.mint("google.com", web3.utils.fromAscii("title"), web3.utils.fromAscii("desc"), price, price, 144);
 
         token_id = 1;
         let owner = await nft.ownerOf(token_id);
@@ -51,7 +51,7 @@ contract("Controller", accounts => {
     it("should mint (not admin) ", async () => {
         let minter_account = accounts[2];
         let price = utils.toWei('0.0000000014');
-        await controller.mint("notanadmin.com", web3.utils.fromAscii("ar var adzmini"), web3.utils.fromAscii("desc"), price, {from: minter_account});
+        await controller.mint("notanadmin.com", web3.utils.fromAscii("ar var adzmini"), web3.utils.fromAscii("desc"), price, price, 144, {from: minter_account});
 
         token_id = 2;
         let owner = await nft.ownerOf(token_id);
@@ -68,7 +68,7 @@ contract("Controller", accounts => {
 
     it("should buy (owner)", async () => {
         let price = utils.toWei('0.0000000012');
-        await controller.mint("google2.com", utils.getByte32("title2"), utils.getByte32("desc2"), price);
+        await controller.mint("google2.com", utils.getByte32("title2"), utils.getByte32("desc2"), price, price, 144);
         token_id = 3;
         let prev_owner = await nft.ownerOf(token_id);
 
@@ -83,7 +83,7 @@ contract("Controller", accounts => {
 
     it("should buy (owner)", async () => {
         let price = utils.toWei('0.0000000012');
-        await controller.mint("google2.com", utils.getByte32("title2"), utils.getByte32("desc2"), price,
+        await controller.mint("google2.com", utils.getByte32("title2"), utils.getByte32("desc2"), price, price, 144,
             {from: accounts[8]});
         token_id = 4;
         let prev_owner = await nft.ownerOf(token_id);
@@ -112,7 +112,7 @@ contract("Controller", accounts => {
 
     it("should not buy (low price) ", async () => {
         let price = utils.toWei('0.000000002');
-        await controller.mint("lowprice.com", utils.getByte32("lowprice"), utils.getByte32("desc3"), price);
+        await controller.mint("lowprice.com", utils.getByte32("lowprice"), utils.getByte32("desc3"), price, price, 144);
         token_id = 4
 
         let prev_owner = await nft.ownerOf(token_id);
