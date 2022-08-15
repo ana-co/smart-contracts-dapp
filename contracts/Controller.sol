@@ -28,9 +28,11 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
 
     /* ========== EVENTS ========== */
 
-    event Mint(uint256 _tokenId, address _minter, string uri, bytes32 _title, bytes32 _description, uint256 _price);
+    event Mint(uint256 _tokenId, address _minter, string uri, bytes32 _title, bytes32 _description, uint256 _price, uint rentPrice, uint rentDuration);
     event BuyNFT(uint256 _tokenId, address from, address to);
-
+    event RentRequest(uint256 _tokenId, address mainRenter, address[] coOwners);
+    event PayForRent(uint256 _tokenId, address renter);
+    event RentFinishTime(uint256 _tokenId, uint256 periodFinish);
 
     function initialize(address _eternalStorage, address _dynamicNFTCollectionAddress) public initializer {
         eternalStorage = _eternalStorage;
@@ -51,7 +53,7 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
         NFT.setTokenURI(tokenId, uri);
         eternalStorage.saveMediaInfo(tokenId, _title, _description, _price, rentPrice, rentDuration);
 
-        emit Mint(tokenId, _msgSender(), uri, _title, _description, _price);
+        emit Mint(tokenId, _msgSender(), uri, _title, _description, _price, rentPrice, rentDuration);
 
         return tokenId;
     }
@@ -79,7 +81,8 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
     function rentRequest(uint256 _tokenId, bytes32 coOwners, address[] memory coOwnersList) external payable {
         eternalStorage.handleRentRequest(_tokenId, _msgSender(), coOwners, coOwnersList.length, coOwnersList, msg.value);
         _forwardFunds(payable(NFT.ownerOf(_tokenId)));
-        //emit paid
+        emit RentRequest(_tokenId, _msgSender(), coOwnersList);
+        emit PayForRent(_tokenId, _msgSender());
     }
 
     function rentByPeer(uint256 _tokenId, address mainRenter, bytes32[] memory proof) external payable {
@@ -95,9 +98,9 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
         eternalStorage.savePaidInfo(_tokenId, mainRenter, _msgSender(), msg.value);
         if(eternalStorage.hasEveryOnePaid(_tokenId, mainRenter)){
             eternalStorage.updateRentStatus(_tokenId);
-            //emit finishTime
+            emit RentFinishTime(_tokenId, uint256(block.timestamp) + eternalStorage.getMediaRentDuration(_tokenId));
         }
-        //emit paid
+        emit PayForRent(_tokenId, _msgSender());
     }
 
     function renterAllowedToWatch(uint256 _tokenId, address mainRenter, bytes32[] memory proof) external returns(bool){

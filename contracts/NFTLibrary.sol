@@ -75,6 +75,10 @@ library NFTLibrary {
         return EternalStorage(_storageContract).getUIntValue(keccak256(abi.encodePacked("media_price", _tokenId)));
     }
 
+    function getMediaRentDuration(address _storageContract, uint256 _tokenId) public view returns (uint256){
+        return EternalStorage(_storageContract).getUIntValue(keccak256(abi.encodePacked("media_rent_duration", _tokenId)));
+    }
+
     function getMediaRentPrice(address _storageContract, uint256 _tokenId) public view returns (uint256){
         return EternalStorage(_storageContract).getUIntValue(keccak256(abi.encodePacked("media_rent_price", _tokenId)));
     }
