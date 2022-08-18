@@ -58,6 +58,11 @@ library NFTLibrary {
         return EternalStorage(_storageContract).getBytes32Value(keccak256(abi.encodePacked("rent_request", _tokenId, renter)));
     }
 
+    function getCoOwners(address _storageContract, uint256 _tokenId, address renter) public view returns (address[] memory)
+    {
+        return EternalStorage(_storageContract).getAddressListValue(keccak256(abi.encodePacked("rent_request, coOwners_list", renter, _tokenId)));
+    }
+
     function getMediaInfo(address _storageContract, uint256 _tokenId) public view returns (bytes32, bytes32, uint256, uint256, uint256)
     {
         return

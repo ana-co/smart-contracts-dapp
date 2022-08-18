@@ -32,7 +32,8 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
     event BuyNFT(uint256 _tokenId, address from, address to);
     event RentRequest(uint256 _tokenId, address mainRenter, address[] coOwners);
     event PayForRent(uint256 _tokenId, address renter);
-    event RentFinishTime(uint256 _tokenId, uint256 periodFinish);
+    event RentFinishTime(uint256 _tokenId, uint256 start, uint256 duration);
+    event RentStarted(uint256 _tokenId, address[] coOwners);
 
     function initialize(address _eternalStorage, address _dynamicNFTCollectionAddress) public initializer {
         eternalStorage = _eternalStorage;
@@ -96,28 +97,34 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
         //        save_this_add in transfereds;
         _forwardFunds(payable(NFT.ownerOf(_tokenId)));
         eternalStorage.savePaidInfo(_tokenId, mainRenter, _msgSender(), msg.value);
-        if(eternalStorage.hasEveryOnePaid(_tokenId, mainRenter)){
+        if (eternalStorage.hasEveryOnePaid(_tokenId, mainRenter)) {
             eternalStorage.updateRentStatus(_tokenId);
-            emit RentFinishTime(_tokenId, uint256(block.timestamp) + eternalStorage.getMediaRentDuration(_tokenId));
+            emit RentFinishTime(_tokenId, uint256(block.timestamp), eternalStorage.getMediaRentDuration(_tokenId));
+            emit RentStarted(_tokenId, eternalStorage.getCoOwners(_tokenId, mainRenter));
         }
         emit PayForRent(_tokenId, _msgSender());
     }
 
-    function renterAllowedToWatch(uint256 _tokenId, address mainRenter, bytes32[] memory proof) external returns(bool){
+    function renterAllowedToWatch(uint256 _tokenId, address mainRenter, bytes32[] memory proof) external returns (bool){
         bytes32 merkleTree = eternalStorage.getRentRequestMerkleTree(_tokenId, mainRenter);
         require(proof.verify(merkleTree, keccak256(abi.encodePacked(_msgSender()))), "Address not in list");
         return eternalStorage.hasEveryOnePaid(_tokenId, mainRenter);
     }
 
-    function getMediaRentPrice(uint256 _tokenId) public view returns(uint256){
+    function allowedToWatch(uint256 _tokenId) public view returns (bool){
+        require(_msgSender() == NFT.ownerOf(_tokenId), "not owner");
+        return true;
+    }
+
+    function getMediaRentPrice(uint256 _tokenId) public view returns (uint256){
         return eternalStorage.getMediaRentPrice(_tokenId);
     }
 
-    function canRemovePeer(uint256 _tokenId, address mainRenter, address peer) external view returns(bool){
+    function canRemovePeer(uint256 _tokenId, address mainRenter, address peer) external view returns (bool){
         return !eternalStorage.hasPaid(_tokenId, mainRenter, peer);
     }
 
-    function getPaidRentCumulativeValue(uint256 _tokenId, address mainRenter) external view returns(uint256){
+    function getPaidRentCumulativeValue(uint256 _tokenId, address mainRenter) external view returns (uint256){
         return eternalStorage.getPaidRentCumulativeValue(_tokenId, mainRenter);
     }
 
@@ -125,7 +132,7 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
         eternalStorage.resetRentStatus(_tokenId, renter);
     }
 
-    function isRented(uint256 _tokenId) public view returns(bool) {
+    function isRented(uint256 _tokenId) public view returns (bool) {
         return eternalStorage.mediaRentStatus(_tokenId);
     }
 
