@@ -9,4 +9,6 @@ interface IController {
 
     function getMediaInfo(uint256 tokenId) external view returns (bytes32, bytes32, uint256, uint256, uint256, uint256);
 
+    function auctionRequest(uint256 tokenId, uint256 _stepPrice, uint256 _stepTime) external;
+
 }

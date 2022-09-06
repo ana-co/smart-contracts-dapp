@@ -34,6 +34,8 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
     event PayForRent(uint256 _tokenId, address renter);
     event RentFinishTime(uint256 _tokenId, uint256 start, uint256 duration);
     event RentStarted(uint256 _tokenId, address[] coOwners);
+    event AuctionIteration(uint256 _tokenId, uint256 _stepPrice, uint256 _stepTime);
+
 
     function initialize(address _eternalStorage, address _dynamicNFTCollectionAddress) public initializer {
         eternalStorage = _eternalStorage;
@@ -57,6 +59,13 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
         emit Mint(tokenId, _msgSender(), uri, _title, _description, _price, rentPrice, rentDuration, videoDuration);
 
         return tokenId;
+    }
+
+    function auctionRequest(uint256 _tokenId, uint256 _stepPrice, uint256 _stepTime) external override {
+        require(_msgSender() == NFT.ownerOf(_tokenId), "not an owner");
+
+        emit AuctionIteration(_tokenId, _stepPrice, _stepTime);
+
     }
 
     function buyNFT(uint256 _tokenId) external payable override {
