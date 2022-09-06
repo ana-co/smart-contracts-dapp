@@ -28,7 +28,7 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
 
     /* ========== EVENTS ========== */
 
-    event Mint(uint256 _tokenId, address _minter, string uri, bytes32 _title, bytes32 _description, uint256 _price, uint rentPrice, uint rentDuration);
+    event Mint(uint256 _tokenId, address _minter, string uri, bytes32 _title, bytes32 _description, uint256 _price, uint256 rentPrice, uint256 rentDuration, uint256 videoDuration);
     event BuyNFT(uint256 _tokenId, address from, address to);
     event RentRequest(uint256 _tokenId, address mainRenter, address[] coOwners);
     event PayForRent(uint256 _tokenId, address renter);
@@ -46,15 +46,15 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
 
-    function mint(string memory uri, bytes32 _title, bytes32 _description, uint256 _price, uint256 rentPrice, uint256 rentDuration) external override returns (uint256){
+    function mint(string memory uri, bytes32 _title, bytes32 _description, uint256 _price, uint256 rentPrice, uint256 rentDuration, uint256 videoDuration) external override returns (uint256){
 
         tokenId = tokenId + 1;
 
         NFT.mint(_msgSender(), tokenId);
         NFT.setTokenURI(tokenId, uri);
-        eternalStorage.saveMediaInfo(tokenId, _title, _description, _price, rentPrice, rentDuration);
+        eternalStorage.saveMediaInfo(tokenId, _title, _description, _price, rentPrice, rentDuration, videoDuration);
 
-        emit Mint(tokenId, _msgSender(), uri, _title, _description, _price, rentPrice, rentDuration);
+        emit Mint(tokenId, _msgSender(), uri, _title, _description, _price, rentPrice, rentDuration, videoDuration);
 
         return tokenId;
     }
@@ -136,7 +136,7 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
         return eternalStorage.mediaRentStatus(_tokenId);
     }
 
-    function getMediaInfo(uint256 _tokenId) public view override returns (bytes32, bytes32, uint256, uint256, uint256){
+    function getMediaInfo(uint256 _tokenId) public view override returns (bytes32, bytes32, uint256, uint256, uint256, uint256){
         return eternalStorage.getMediaInfo(_tokenId);
     }
 

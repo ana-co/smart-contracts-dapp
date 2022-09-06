@@ -9,13 +9,15 @@ library NFTLibrary {
 
     using SafeMath for uint256;
 
-    function saveMediaInfo(address _storageContract, uint256 _tokenId, bytes32 _title, bytes32 _description, uint256 _price, uint256 rentPrice, uint256 rentDuration) public
+    function saveMediaInfo(address _storageContract, uint256 _tokenId, bytes32 _title, bytes32 _description, uint256 _price, uint256 rentPrice, uint256 rentDuration, uint256 videoDuration) public
     {
         EternalStorage(_storageContract).setBytes32Value(keccak256(abi.encodePacked("media_title", _tokenId)), _title);
         EternalStorage(_storageContract).setBytes32Value(keccak256(abi.encodePacked("media_description", _tokenId)), _description);
         EternalStorage(_storageContract).setUIntValue(keccak256(abi.encodePacked("media_price", _tokenId)), _price);
         EternalStorage(_storageContract).setUIntValue(keccak256(abi.encodePacked("media_rent_price", _tokenId)), rentPrice);
         EternalStorage(_storageContract).setUIntValue(keccak256(abi.encodePacked("media_rent_duration", _tokenId)), rentDuration);
+        EternalStorage(_storageContract).setUIntValue(keccak256(abi.encodePacked("media_video_duration", _tokenId)), videoDuration);
+
     }
 
     function handleRentRequest(address _storageContract, uint256 _tokenId, address renter, bytes32 coOwners, uint256 numOfCoOwners, address[] memory coOwnersList, uint256 amount) public {
@@ -63,7 +65,7 @@ library NFTLibrary {
         return EternalStorage(_storageContract).getAddressListValue(keccak256(abi.encodePacked("rent_request, coOwners_list", renter, _tokenId)));
     }
 
-    function getMediaInfo(address _storageContract, uint256 _tokenId) public view returns (bytes32, bytes32, uint256, uint256, uint256)
+    function getMediaInfo(address _storageContract, uint256 _tokenId) public view returns (bytes32, bytes32, uint256, uint256, uint256, uint256)
     {
         return
         (
@@ -71,7 +73,9 @@ library NFTLibrary {
         EternalStorage(_storageContract).getBytes32Value(keccak256(abi.encodePacked("media_description", _tokenId))),
         EternalStorage(_storageContract).getUIntValue(keccak256(abi.encodePacked("media_price", _tokenId))),
         EternalStorage(_storageContract).getUIntValue(keccak256(abi.encodePacked("media_rent_price", _tokenId))),
-        EternalStorage(_storageContract).getUIntValue(keccak256(abi.encodePacked("media_rent_duration", _tokenId)))
+        EternalStorage(_storageContract).getUIntValue(keccak256(abi.encodePacked("media_rent_duration", _tokenId))),
+        EternalStorage(_storageContract).getUIntValue(keccak256(abi.encodePacked("media_video_duration", _tokenId)))
+
         );
     }
 
