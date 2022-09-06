@@ -20,6 +20,19 @@ library NFTLibrary {
 
     }
 
+    function saveMediaPrice(address _storageContract, uint256 _tokenId, uint256 _price) public
+    {
+        EternalStorage(_storageContract).setUIntValue(keccak256(abi.encodePacked("media_price", _tokenId)), _price);
+
+    }
+
+    function saveAuctionRequestInfo(address _storageContract, uint256 _tokenId, uint256 _stepTime, uint256 _stepPrice) public
+    {
+        EternalStorage(_storageContract).setUIntValue(keccak256(abi.encodePacked("auction_step_time", _tokenId)), _stepTime);
+        EternalStorage(_storageContract).setUIntValue(keccak256(abi.encodePacked("auction_step_price", _tokenId)), _stepPrice);
+        EternalStorage(_storageContract).setUIntValue(keccak256(abi.encodePacked("auction_last_step_time", _tokenId)), block.timestamp);
+    }
+
     function handleRentRequest(address _storageContract, uint256 _tokenId, address renter, bytes32 coOwners, uint256 numOfCoOwners, address[] memory coOwnersList, uint256 amount) public {
         EternalStorage(_storageContract).setBytes32Value(keccak256(abi.encodePacked("rent_request", _tokenId, renter)), coOwners);
         EternalStorage(_storageContract).setUIntValue(keccak256(abi.encodePacked("rent_request, num_of_co_owners", renter, _tokenId)), numOfCoOwners);
@@ -76,6 +89,16 @@ library NFTLibrary {
         EternalStorage(_storageContract).getUIntValue(keccak256(abi.encodePacked("media_rent_duration", _tokenId))),
         EternalStorage(_storageContract).getUIntValue(keccak256(abi.encodePacked("media_video_duration", _tokenId)))
 
+        );
+    }
+
+    function getAuctionRequestInfo(address _storageContract, uint256 _tokenId) public view returns (uint256, uint256, uint256)
+    {
+        return
+        (
+        EternalStorage(_storageContract).getUIntValue(keccak256(abi.encodePacked("auction_step_time", _tokenId))),
+        EternalStorage(_storageContract).getUIntValue(keccak256(abi.encodePacked("auction_step_price", _tokenId))),
+        EternalStorage(_storageContract).getUIntValue(keccak256(abi.encodePacked("auction_last_step_time", _tokenId)))
         );
     }
 

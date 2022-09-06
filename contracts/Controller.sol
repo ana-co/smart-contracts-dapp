@@ -34,7 +34,9 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
     event PayForRent(uint256 _tokenId, address renter);
     event RentFinishTime(uint256 _tokenId, uint256 start, uint256 duration);
     event RentStarted(uint256 _tokenId, address[] coOwners);
-    event AuctionIteration(uint256 _tokenId, uint256 _stepPrice, uint256 _stepTime);
+    event AuctionRequest(uint256 _tokenId, uint256 _stepPrice, uint256 _stepTime);
+    event AuctionIteration(uint256 _tokenId, uint256 _newPrice);
+
 
 
     function initialize(address _eternalStorage, address _dynamicNFTCollectionAddress) public initializer {
@@ -64,8 +66,27 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
     function auctionRequest(uint256 _tokenId, uint256 _stepPrice, uint256 _stepTime) external override {
         require(_msgSender() == NFT.ownerOf(_tokenId), "not an owner");
 
-        emit AuctionIteration(_tokenId, _stepPrice, _stepTime);
+        emit AuctionRequest(_tokenId, _stepPrice, _stepTime);
 
+    }
+
+    function iterAuction(uint256 _tokenId) external override {
+        uint256 stepTime;
+        uint256 stepPrice;
+        uint256 lastStepTime;
+        (stepTime, stepPrice, lastStepTime) = eternalStorage.getAuctionRequestInfo(_tokenId);
+
+        // TODO check time : lastStepTime + stepTime <= now ()
+        uint256 currentPrice = eternalStorage.getMediaPrice(_tokenId);
+        require(
+            currentPrice > stepPrice,
+                "NFT price must be greater than zero"
+        );
+        uint256 newPrice = currentPrice - stepPrice;
+        eternalStorage.saveMediaPrice(_tokenId, newPrice);
+        // TODO lastStepTime = now ()
+
+        emit AuctionIteration(_tokenId, newPrice);
     }
 
     function buyNFT(uint256 _tokenId) external payable override {

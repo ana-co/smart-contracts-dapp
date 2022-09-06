@@ -11,4 +11,6 @@ interface IController {
 
     function auctionRequest(uint256 tokenId, uint256 _stepPrice, uint256 _stepTime) external;
 
+    function iterAuction(uint256 tokenId) external;
+
 }
