@@ -65,6 +65,7 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
 
     function auctionRequest(uint256 _tokenId, uint256 _stepPrice, uint256 _stepTime) external override {
         require(_msgSender() == NFT.ownerOf(_tokenId), "not an owner");
+        eternalStorage.saveAuctionRequestInfo(_tokenId, _stepPrice, _stepTime);
 
         emit AuctionRequest(_tokenId, _stepPrice, _stepTime);
 
@@ -113,6 +114,11 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
         eternalStorage.handleRentRequest(_tokenId, _msgSender(), coOwners, coOwnersList.length, coOwnersList, msg.value);
         _forwardFunds(payable(NFT.ownerOf(_tokenId)));
         emit RentRequest(_tokenId, _msgSender(), coOwnersList);
+        if (eternalStorage.hasEveryOnePaid(_tokenId, _msgSender())) {
+            eternalStorage.updateRentStatus(_tokenId);
+            emit RentFinishTime(_tokenId, uint256(block.timestamp), eternalStorage.getMediaRentDuration(_tokenId));
+            emit RentStarted(_tokenId, eternalStorage.getCoOwners(_tokenId, _msgSender()));
+        }
         emit PayForRent(_tokenId, _msgSender());
     }
 
