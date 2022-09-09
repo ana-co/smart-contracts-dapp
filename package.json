@@ -41,6 +41,7 @@
     "nodemon": "^2.0.15",
     "truffle": "^5.1.33",
     "truffle-plugin-verify": "^0.5.20",
-    "web3-eth": "^1.5.2"
+    "web3-eth": "^1.5.2",
+    "merkle-tree": "^1.0.5"
   }
 }

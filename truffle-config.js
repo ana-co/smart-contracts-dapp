@@ -69,8 +69,10 @@ module.exports = {
             // provider: () => new HDWalletProvider(privateKey, 'https://polygon-mumbai.infura.io/v3/06522c4d05884fe69d154949e84e360e'),
             // provider: () => new PrivateKeyProvider(privateKey, 'https://rpc-mumbai.maticvigil.com'),
             network_id: 80001,
+            chainId: 80001,
             confirmations: 2,
             timeoutBlocks: 200,
+            gasPrice: 50000000000,
             skipDryRun: true
         }
 
