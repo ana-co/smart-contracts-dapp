@@ -74,7 +74,7 @@ contract Controller is AccessControlUpgradeable {
         uint256 lastStepTime;
         (stepTime, stepPrice, lastStepTime) = eternalStorage.getAuctionRequestInfo(_tokenId);
 
-        // TODO check time : lastStepTime + stepTime <= now ()
+        require(lastStepTime + stepTime < block.timestamp, "not time");
         uint256 currentPrice = eternalStorage.getMediaPrice(_tokenId);
         require(
             currentPrice > stepPrice,
@@ -82,7 +82,7 @@ contract Controller is AccessControlUpgradeable {
         );
         uint256 newPrice = currentPrice - stepPrice;
         eternalStorage.saveMediaPrice(_tokenId, newPrice);
-        // TODO lastStepTime = now ()
+        eternalStorage.saveAuctionRequestInfo(_tokenId, stepPrice, stepTime);
 
         emit AuctionIteration(_tokenId, newPrice);
     }
