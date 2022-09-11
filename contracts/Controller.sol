@@ -77,7 +77,7 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
         uint256 lastStepTime;
         (stepTime, stepPrice, lastStepTime) = eternalStorage.getAuctionRequestInfo(_tokenId);
 
-        require(lastStepTime + stepPrice >= block.timestamp, "not time");
+        require(lastStepTime + stepTime < block.timestamp, "not time");
         uint256 currentPrice = eternalStorage.getMediaPrice(_tokenId);
         require(
             currentPrice > stepPrice,
@@ -85,7 +85,7 @@ contract Controller is IController, Initializable, AccessControlUpgradeable {
         );
         uint256 newPrice = currentPrice - stepPrice;
         eternalStorage.saveMediaPrice(_tokenId, newPrice);
-        eternalStorage.saveAuctionRequestInfo(_tokenId, _stepPrice, _stepTime);
+        eternalStorage.saveAuctionRequestInfo(_tokenId, stepPrice, stepTime);
 
         emit AuctionIteration(_tokenId, newPrice);
     }
